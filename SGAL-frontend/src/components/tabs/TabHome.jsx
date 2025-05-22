@@ -2,16 +2,47 @@
 import React, { useState } from 'react'
 import {
   BarChart2, FileCheck, AlertCircle, DollarSign,
-  ClipboardList, Download, CheckCircle, Circle
+  ClipboardList, Download, CheckCircle, Circle, ChevronRight, Search, Filter, MoreHorizontal
 } from 'lucide-react'
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Bar,
   BarChart, XAxis, YAxis, Tooltip, CartesianGrid,
 } from 'recharts'
 import { motion } from 'framer-motion'
-import { DatePicker } from 'antd'
+import { DatePicker, Badge } from 'antd'
 import 'antd/dist/reset.css'
-
+const solicitudes = [
+  {
+    id: 1,
+    solicitante: 'Juan Pérez',
+    cargo: 'Jefe Técnico',
+    correo: 'jperez@geolab.com',
+    fecha: '2025-05-21',
+    estado: 'Pendiente',
+    obra: 'Puente Río Claro',
+    prioridad: 'alta'
+  },
+  {
+    id: 2,
+    solicitante: 'Carla Soto',
+    cargo: 'Ingeniera Civil',
+    correo: 'csoto@geolab.com',
+    fecha: '2025-05-20',
+    estado: 'Aprobada',
+    obra: 'Edificio Central',
+    prioridad: 'media'
+  },
+  {
+    id: 3,
+    solicitante: 'Marcos Ríos',
+    cargo: 'Arquitecto',
+    correo: 'mrios@geolab.com',
+    fecha: '2025-05-18',
+    estado: 'Rechazada',
+    obra: 'Centro Comercial Norte',
+    prioridad: 'baja'
+  },
+]
 const cotizacionesData = [
   { name: 'Ene', value: 15 },
   { name: 'Feb', value: 22 },
@@ -50,7 +81,9 @@ const TabHome = () => {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="flex flex-wrap justify-center gap-10">
+
+
         {/* Solicitudes Cotizaciones */}
         <motion.div className="card bg-base-100 shadow-xl" whileHover={{ scale: 1.02 }}>
           <div className="card-body">
@@ -101,19 +134,43 @@ const TabHome = () => {
 
         {/* Facturación */}
         <motion.div className="card bg-base-100 shadow-xl" whileHover={{ scale: 1.02 }}>
-          <div className="card-body">
-            <h2 className="card-title"><DollarSign className="w-5 h-5" /> Facturación</h2>
-            <ResponsiveContainer width="100%" height={120}>
-              <PieChart>
-                <Pie data={facturacionData} dataKey="value" innerRadius={25} outerRadius={50}>
-                  {facturacionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={facturacionColors[index % facturacionColors.length]} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
+  <div className="card-body w-full">
+    <h2 className="card-title"><DollarSign className="w-5 h-5" /> Facturación</h2>
+
+    <ResponsiveContainer width="100%" height={150}>
+      <PieChart>
+        <Pie
+          label
+          data={facturacionData}
+          dataKey="value"
+          innerRadius={15}
+          outerRadius={50}
+        >
+          {facturacionData.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={facturacionColors[index % facturacionColors.length]}
+            />
+          ))}
+        </Pie>
+      </PieChart>
+    </ResponsiveContainer>
+
+    {/* Leyenda personalizada */}
+    <div className="flex flex-wrap justify-center gap-4 mt-4">
+      {facturacionData.map((entry, index) => (
+        <div key={index} className="flex items-center space-x-2 text-sm">
+          <span
+            className="inline-block w-3 h-3 rounded-full"
+            style={{ backgroundColor: facturacionColors[index % facturacionColors.length] }}
+          />
+          <span>{entry.name}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</motion.div>
+
 
         {/* Objetivos */}
         <motion.div className="card bg-base-100 shadow-xl" whileHover={{ scale: 1.02 }}>
@@ -142,53 +199,102 @@ const TabHome = () => {
       </div>
 
       {/* Tabla inferior */}
-      <div className="card bg-base-100 shadow-xl">
-        <div className="card-body">
-          <h2 className="card-title">Solicitudes de Cotización</h2>
+      <motion.div 
+        className="card bg-base-100 shadow-lg border border-base-200"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="card-body p-0">
+          <div className="flex justify-between items-center p-4 border-b border-base-200">
+            <h2 className="card-title text-lg">Solicitudes de Cotización</h2>
+            <div className="flex justify-between items-center gap-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Buscar..." 
+                  className="input input-sm input-bordered pl-9 pr-4"
+                />
+              </div>
+              <button className="btn btn-sm btn-outline">
+                <Filter className="w-4 h-4 mr-1" /> Filtros
+              </button>
+            </div>
+          </div>
           <div className="overflow-x-auto">
-            <table className="table table-zebra">
+            <table className="table">
               <thead>
-                <tr>
+                <tr className="bg-base-200">
                   <th>Solicitante</th>
                   <th>Correo</th>
                   <th>Fecha</th>
                   <th>Estado</th>
                   <th>Obra</th>
-                  <th></th>
+                  <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <div>
-                      <div className="font-bold">Juan Pérez</div>
-                      <div className="text-sm opacity-50">Jefe Técnico</div>
-                    </div>
-                  </td>
-                  <td>jperez@geolab.com</td>
-                  <td>2025-05-21</td>
-                  <td><span className="badge badge-warning">Pendiente</span></td>
-                  <td>Puente Río Claro</td>
-                  <td><button className="btn btn-sm btn-outline">Revisar</button></td>
-                </tr>
-                <tr>
-                  <td>
-                    <div>
-                      <div className="font-bold">Carla Soto</div>
-                      <div className="text-sm opacity-50">Ingeniera Civil</div>
-                    </div>
-                  </td>
-                  <td>csoto@geolab.com</td>
-                  <td>2025-05-20</td>
-                  <td><span className="badge badge-success">Aprobada</span></td>
-                  <td>Edificio Central</td>
-                  <td><button className="btn btn-sm btn-outline">Revisar</button></td>
-                </tr>
+                {solicitudes.map((solicitud) => (
+                  <motion.tr 
+                    key={solicitud.id}
+                    whileHover={{ backgroundColor: 'rgba(243, 244, 246, 0.5)' }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <td>
+                      <div className="flex items-center space-x-3">
+  <div className="avatar placeholder">
+    <div className="bg-neutral text-neutral-content rounded-full w-8 h-8 flex items-center justify-center">
+      <span className="text-md">
+        {solicitud.solicitante.split(' ').map(n => n[0]).join('')}
+      </span>
+    </div>
+  </div>
+  <div>
+    <div className="font-bold">{solicitud.solicitante}</div>
+    <div className="text-sm text-gray-500">{solicitud.cargo}</div>
+  </div>
+</div>
+
+                    </td>
+                    <td className="text-sm">{solicitud.correo}</td>
+                    <td className="text-sm">{solicitud.fecha}</td>
+                    <td>
+                      <Badge 
+                        status={
+                          solicitud.estado === 'Aprobada' ? 'success' : 
+                          solicitud.estado === 'Pendiente' ? 'warning' : 'error'
+                        } 
+                        text={solicitud.estado}
+                      />
+                    </td>
+                    <td className="text-sm">{solicitud.obra}</td>
+                    <td>
+                      <div className="flex gap-1">
+                        <button className="btn btn-xs btn-outline">Revisar</button>
+                        <button className="btn btn-xs btn-ghost">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
               </tbody>
             </table>
           </div>
+          <div className="flex justify-between items-center p-4 border-t border-base-200">
+            <div className="text-sm text-gray-500">
+              Mostrando 1 al {solicitudes.length} de {solicitudes.length} registros
+            </div>
+            <div className="join">
+              <button className="join-item btn btn-sm">«</button>
+              <button className="join-item btn btn-sm btn-active">1</button>
+              <button className="join-item btn btn-sm">2</button>
+              <button className="join-item btn btn-sm">»</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

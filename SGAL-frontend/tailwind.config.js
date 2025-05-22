@@ -2,11 +2,13 @@
 module.exports = {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx}", // Asegúrate de incluir JS/JSX
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
-
   theme: {
     extend: {},
   },
-  plugins: [],
-};
+  plugins: [require("daisyui")],
+  daisyui: {
+    themes: ["garden"], // usa "garden" como tema predeterminado
+  },
+}
