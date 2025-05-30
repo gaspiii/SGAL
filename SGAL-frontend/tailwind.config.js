@@ -7,8 +7,5 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [require("daisyui")],
-  daisyui: {
-    themes: ["garden"], // usa "garden" como tema predeterminado
-  },
+
 }

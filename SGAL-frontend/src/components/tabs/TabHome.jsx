@@ -125,7 +125,7 @@ const TabHome = () => {
         <motion.div className="card bg-base-100 shadow-xl text-center  " whileHover={{ scale: 1.02 }}>
           <div className="card-body">
             <h2 className="card-title justify-center"><AlertCircle className="w-5 h-5" /> Probetas H.F</h2>
-            <p className="text-4xl font-bold text-error">12</p>
+            <p className="text-4xl font-bold text-primary">12</p>
             <button className="btn btn-outline btn-error btn-sm mt-3">
               <Download className="w-4 h-4 mr-1" /> Descargar detalle
             </button>
