@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const userSchema = new mongoose.Schema(
     {
         name: {
@@ -10,9 +9,10 @@ const userSchema = new mongoose.Schema(
         },
         username: {
             type: String,
-            required: true,
+            required: false, // Lo hago opcional para que coincida con el controlador
             unique: true,
             trim: true,
+            sparse: true, // Permite valores null/undefined únicos
         },
         email: {
             type: String,
@@ -28,6 +28,7 @@ const userSchema = new mongoose.Schema(
             enum: ["admin", "user"],
             default: "user",
         },
+        // Cambiado de 'departamento' (número) a 'cargo'
         cargo: {
             type: String,
             required: true,
@@ -36,13 +37,13 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
+            maxlength: 4, // Limitamos las iniciales
         },
-        grupos: {
+        grupos: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Grupo", // Referencia al modelo Grupo
-        },
+            ref: "Grupo", // Cambio a array para múltiples grupos
+        }],
     },
-    // timestamps agrega automáticamente createdAt y updatedAt
     { timestamps: true }
 );
 

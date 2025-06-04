@@ -8,6 +8,11 @@ export const authRequired = (req, res, next) => {
         return res.status(403).json({ message: "No se proporcionó un token" });
     }
 
+    if (!TOKEN_SECRET) {
+        console.error("TOKEN_SECRET no está definido");
+        return res.status(500).json({ message: "Error de configuración del servidor" });
+    }
+
     try {
         const decoded = jwt.verify(token, TOKEN_SECRET);
         req.userId = decoded.userId;
