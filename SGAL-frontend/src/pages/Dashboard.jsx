@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import UserSidebar from '../components/UserSidebar';
 import TabHome from '../components/tabs/TabHome';
 import TabQuotations from '../components/tabs/TabQuotations';
@@ -13,13 +13,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [activeSubTab, setActiveSubTab] = useState(null);
+  const navigate = useNavigate();
+
+  // Verificar si el usuario está logueado
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      navigate('/');
+    }
+  }, [navigate]);
 
   const renderTab = () => {
     switch (activeTab) {
       case 'home':
         return <TabHome />;
       case 'quotes':
-        // Manejar las subpestañas de cotizaciones
         switch (activeSubTab) {
           case 'quotations':
             return <TabQuotations />;
@@ -29,7 +37,6 @@ const Dashboard = () => {
             return <TabQuotations />;
         }
       case 'accounts':
-        // Manejar las subpestañas de cuentas
         switch (activeSubTab) {
           case 'users':
             return <TabUsers />;
