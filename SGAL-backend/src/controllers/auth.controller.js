@@ -115,7 +115,6 @@ export const getProfile = async (req, res) => {
         }
 
         res.json({
-            user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
@@ -126,7 +125,6 @@ export const getProfile = async (req, res) => {
                 grupos: user.grupos,
                 createdAt: user.createdAt,
                 updatedAt: user.updatedAt
-            }
         });
     } catch (error) {
         console.error("Error al obtener el perfil:", error);

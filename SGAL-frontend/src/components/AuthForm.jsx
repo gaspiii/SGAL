@@ -16,33 +16,44 @@ const AuthForm = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
-        email: form.email,
-        password: form.password
-      }, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.data && response.data.success) {
-        message.success('Inicio de sesión exitoso');
-        navigate('/dashboard');
-      } else {
-        setError(response.data?.message || 'Credenciales incorrectas');
+  e.preventDefault();
+  setIsLoading(true);
+  
+  try {
+    const response = await axios.post('http://localhost:3000/api/auth/login', {
+      email: form.email,
+      password: form.password
+    }, {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
       }
-    } catch (err) {
-      console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Error al conectar con el servidor');
-    } finally {
-      setIsLoading(false);
+    });
+
+    if (response.data && (response.data.message === 'Inicio de sesión exitoso')) {
+      // Guardar el token en las cookies
+      document.cookie = `token=${response.data.token}; path=/; secure; samesite=strict`;
+      // Obtener el perfil del usuario después del login exitoso
+      const profileResponse = await axios.get('http://localhost:3000/api/auth/profile', {
+        withCredentials: true
+      });
+      
+      // Guardar los datos del usuario en localStorage
+      localStorage.setItem('user', JSON.stringify(profileResponse.data));
+      
+      message.success('Inicio de sesión exitoso');
+      navigate('/dashboard');
+    } else {
+      setError(response.data?.message || 'Credenciales incorrectas');
     }
-  };
+  } catch (err) {
+    console.error('Login error:', err);
+    setError(err.response?.data?.message || 'Error al conectar con el servidor');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

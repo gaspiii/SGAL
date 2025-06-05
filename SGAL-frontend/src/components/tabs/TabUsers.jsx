@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, MoreHorizontal, User, X, Check } from 'lucide-react';
-import { Badge, Modal, message } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Filter, Plus, X, Check, Trash2 } from 'lucide-react';
+import { Modal, message } from 'antd';
 import axios from 'axios';
 
 const api = axios.create({
@@ -13,6 +13,10 @@ const TabUsers = () => {
   const [usersData, setUsersData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -23,10 +27,30 @@ const TabUsers = () => {
     username: ''
   });
 
-  // Obtener usuarios al cargar el componente
+  const [formErrors, setFormErrors] = useState({});
+
+  // Ref para detectar clic fuera del dropdown de filtros y cerrarlo
+  const filtersRef = useRef(null);
+
+  // Cargar usuarios
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Cerrar dropdown si clic fuera
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filtersRef.current && !filtersRef.current.contains(event.target)) {
+        setShowFilters(false);
+      }
+    }
+    if (showFilters) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showFilters]);
 
   const fetchUsers = async () => {
     try {
@@ -34,14 +58,39 @@ const TabUsers = () => {
       setUsersData(response.data);
     } catch (error) {
       message.error('Error al cargar los usuarios');
-      console.error('Error fetching users:', error);
+      console.error(error);
     }
   };
 
+  // Filtrado simple, puedes ampliar según filtros reales
   const filteredUsers = usersData.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Validación formulario (igual que antes)
+  const validateForm = () => {
+    const errors = {};
+    if (!formData.name) errors.name = 'Nombre es requerido';
+    if (!formData.email) {
+      errors.email = 'Email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Email no válido';
+    }
+    // Solo exigir password si es creación, o si el campo no está vacío (cambiar contraseña)
+    if (!isEditMode || formData.password) {
+      if (!formData.password) {
+        errors.password = 'Contraseña es requerida';
+      } else if (formData.password.length < 6) {
+        errors.password = 'Mínimo 6 caracteres';
+      }
+    }
+    if (!formData.iniciales) errors.iniciales = 'Iniciales son requeridas';
+    if (!formData.username) errors.username = 'Usuario es requerido';
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,38 +99,73 @@ const TabUsers = () => {
       [name]: value
     }));
 
-    // Generar iniciales automáticamente cuando se escribe el nombre
+    // Iniciales automáticas
     if (name === 'name') {
       const initials = value.split(' ').map(n => n[0]).join('').toUpperCase();
-      setFormData(prev => ({
-        ...prev,
-        iniciales: initials.substring(0, 2)
-      }));
+      setFormData(prev => ({ ...prev, iniciales: initials.substring(0, 2) }));
     }
 
-    // Generar username automáticamente cuando se escribe el email
+    // Username automático desde email
     if (name === 'email') {
       const usernamePart = value.split('@')[0];
-      setFormData(prev => ({
-        ...prev,
-        username: usernamePart || ''
-      }));
+      setFormData(prev => ({ ...prev, username: usernamePart || '' }));
+    }
+
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  const handleEditUser = (user) => {
+    setFormData({
+      name: user.name || '',
+      email: user.email || '',
+      password: '',
+      role: user.role || 'user',
+      cargo: user.cargo || '',
+      iniciales: user.iniciales || '',
+      username: user.username || ''
+    });
+    setEditingUserId(user._id);
+    setIsEditMode(true);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!editingUserId) return;
+    setLoading(true);
+    try {
+      await api.delete(`/api/auth/users/${editingUserId}`);
+      message.success('Usuario eliminado exitosamente');
+      setIsModalOpen(false);
+      setIsEditMode(false);
+      setEditingUserId(null);
+      fetchUsers();
+    } catch (error) {
+      console.error(error);
+      message.error('Error al eliminar usuario');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
+
     setLoading(true);
-
     try {
-      await axios.post('/api/auth/register', formData, {
-        withCredentials: true,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      if (isEditMode && editingUserId) {
+        // En PUT si password está vacío, no enviar para no cambiar
+        const updateData = { ...formData };
+        if (!formData.password) delete updateData.password;
+        await api.put(`/api/auth/users/${editingUserId}`, updateData);
+        message.success('Usuario actualizado exitosamente');
+      } else {
+        await api.post('/api/auth/register', formData);
+        message.success('Usuario creado exitosamente');
+      }
 
-      message.success('Usuario creado correctamente');
       setIsModalOpen(false);
       setFormData({
         name: '',
@@ -92,87 +176,96 @@ const TabUsers = () => {
         iniciales: '',
         username: ''
       });
-      fetchUsers(); // Refrescar la lista de usuarios
+      setIsEditMode(false);
+      setEditingUserId(null);
+      fetchUsers();
     } catch (error) {
-      console.error('Error creating user:', error);
-      message.error(error.response?.data?.message || 'Error al crear usuario');
+      console.error(error);
+      const errorMsg = error.response?.data?.message || 'Error al guardar usuario';
+      message.error(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Modal para crear usuario */}
+    <div className="space-y-6 relative">
+      {/* Modal para crear/editar usuario */}
       <Modal
-        title="Crear Nuevo Usuario"
+        title={isEditMode ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
         open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
+        onCancel={() => {
+          setIsModalOpen(false);
+          setFormErrors({});
+          setIsEditMode(false);
+          setEditingUserId(null);
+        }}
         footer={null}
         width={600}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* ... campos del formulario iguales que antes ... */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Nombre */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Nombre Completo</span>
+                <span className="label-text">Nombre Completo*</span>
               </label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className="input input-bordered"
-                required
+                className={`input input-bordered ${formErrors.name ? 'input-error' : ''}`}
               />
+              {formErrors.name && <span className="text-error text-xs">{formErrors.name}</span>}
             </div>
-
+            {/* Email */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Correo Electrónico</span>
+                <span className="label-text">Correo Electrónico*</span>
               </label>
               <input
                 type="email"
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className="input input-bordered"
-                required
+                className={`input input-bordered ${formErrors.email ? 'input-error' : ''}`}
+                disabled={isEditMode} // No permitir cambiar email en edición para simplicidad
               />
+              {formErrors.email && <span className="text-error text-xs">{formErrors.email}</span>}
             </div>
-
+            {/* Contraseña */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Contraseña</span>
+                <span className="label-text">{isEditMode ? 'Nueva Contraseña' : 'Contraseña*'}</span>
               </label>
               <input
                 type="password"
                 name="password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className="input input-bordered"
-                required
-                minLength="6"
+                className={`input input-bordered ${formErrors.password ? 'input-error' : ''}`}
+                placeholder={isEditMode ? 'Dejar vacío para no cambiar' : ''}
               />
+              {formErrors.password && <span className="text-error text-xs">{formErrors.password}</span>}
             </div>
-
+            {/* Rol */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Rol</span>
+                <span className="label-text">Rol*</span>
               </label>
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleInputChange}
-                className="select select-bordered w-full"
-                required
+                className="select select-bordered"
               >
                 <option value="user">Usuario</option>
                 <option value="admin">Administrador</option>
-                <option value="editor">Editor</option>
               </select>
             </div>
-
+            {/* Cargo */}
             <div className="form-control">
               <label className="label">
                 <span className="label-text">Cargo</span>
@@ -185,158 +278,175 @@ const TabUsers = () => {
                 className="input input-bordered"
               />
             </div>
-
+            {/* Iniciales */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Iniciales</span>
+                <span className="label-text">Iniciales*</span>
               </label>
               <input
                 type="text"
                 name="iniciales"
                 value={formData.iniciales}
                 onChange={handleInputChange}
-                className="input input-bordered"
-                maxLength="2"
-                required
+                className={`input input-bordered ${formErrors.iniciales ? 'input-error' : ''}`}
+                maxLength={2}
               />
+              {formErrors.iniciales && <span className="text-error text-xs">{formErrors.iniciales}</span>}
             </div>
-
+            {/* Username */}
             <div className="form-control">
               <label className="label">
-                <span className="label-text">Nombre de Usuario</span>
+                <span className="label-text">Usuario*</span>
               </label>
               <input
                 type="text"
                 name="username"
                 value={formData.username}
                 onChange={handleInputChange}
-                className="input input-bordered"
-                required
+                className={`input input-bordered ${formErrors.username ? 'input-error' : ''}`}
               />
+              {formErrors.username && <span className="text-error text-xs">{formErrors.username}</span>}
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <button
-              type="button"
-              onClick={() => setIsModalOpen(false)}
-              className="btn btn-ghost"
-              disabled={loading}
-            >
-              <X className="w-4 h-4 mr-1" /> Cancelar
-            </button>
+          <div className="flex justify-between items-center mt-6">
+            {isEditMode && (
+              <button
+                type="button"
+                onClick={handleDeleteUser}
+                disabled={loading}
+                className="btn btn-error btn-outline flex items-center gap-2"
+              >
+                <Trash2 size={16} /> Eliminar Usuario
+              </button>
+            )}
             <button
               type="submit"
-              className="btn btn-primary"
               disabled={loading}
+              className="btn btn-outline flex items-center gap-2 ml-auto"
             >
-              {loading ? (
-                <span className="loading loading-spinner"></span>
-              ) : (
-                <>
-                  <Check className="w-4 h-4 mr-1" /> Crear Usuario
-                </>
-              )}
+              <Check size={16} />
+              {isEditMode ? 'Guardar Cambios' : 'Crear Usuario'}
             </button>
           </div>
         </form>
       </Modal>
 
-      {/* Tabla de usuarios */}
-      <div className="card bg-base-100 shadow-lg">
-        <div className="card-body p-0">
-          <div className="flex justify-between items-center p-4 border-b border-base-200">
-            <h2 className="card-title text-lg">Usuarios</h2>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Buscar usuarios..." 
-                  className="input input-sm input-bordered pl-9 pr-4"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <button className="btn btn-sm btn-outline">
-                <Filter className="w-4 h-4 mr-1" /> Filtros
-              </button>
-              <button 
-                className="btn btn-sm btn-primary"
-                onClick={() => setIsModalOpen(true)}
-              >
-                <Plus className="w-4 h-4 mr-1" /> Nuevo usuario
-              </button>
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="table">
-              <thead>
-                <tr className="bg-base-200">
-                  <th>Nombre</th>
-                  <th>Correo electrónico</th>
-                  <th>Rol</th>
-                  <th>Estado</th>
-                  <th>Último acceso</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-base-200">
-                    <td>
-                      <div className="flex items-center gap-3">
-                        <div className="avatar placeholder">
-                          <div className="bg-neutral text-neutral-content rounded-full w-8 h-8">
-                            <span className="text-xs">{user.iniciales || user.name.split(' ').map(n => n[0]).join('')}</span>
-                          </div>
-                        </div>
-                        <div>
-                          <div className="font-bold">{user.name}</div>
-                          {user.cargo && <div className="text-xs text-gray-500">{user.cargo}</div>}
-                        </div>
-                      </div>
-                    </td>
-                    <td>{user.email}</td>
-                    <td>
-                      <span className="badge">
-                        {user.role === 'admin' ? 'Administrador' : 
-                         user.role === 'editor' ? 'Editor' : 'Usuario'}
-                      </span>
-                    </td>
-                    <td>
-                      <Badge 
-                        status={user.status === 'active' ? 'success' : 'error'} 
-                        text={user.status === 'active' ? 'Activo' : 'Inactivo'}
-                      />
-                    </td>
-                    <td>{user.lastLogin || 'Nunca'}</td>
-                    <td>
-                      <div className="flex gap-1">
-                        <button className="btn btn-xs btn-outline">Editar</button>
-                        <button className="btn btn-xs btn-ghost">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex justify-between items-center p-4 border-t border-base-200">
-            <div className="text-sm text-gray-500">
-              Mostrando 1 al {filteredUsers.length} de {filteredUsers.length} registros
-            </div>
-            <div className="join">
-              <button className="join-item btn btn-sm">«</button>
-              <button className="join-item btn btn-sm btn-active">1</button>
-              <button className="join-item btn btn-sm">2</button>
-              <button className="join-item btn btn-sm">»</button>
-            </div>
-          </div>
+      {/* Barra superior con búsqueda y filtros */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-2 w-full max-w-md">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Buscar usuario..."
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            className="input input-bordered w-full"
+          />
         </div>
+
+        <div className="relative" ref={filtersRef}>
+          <button
+            className="btn btn-outline btn-secondary flex items-center gap-2"
+            onClick={() => setShowFilters(!showFilters)}
+          >
+            <Filter size={20} /> Filtros
+          </button>
+
+          {/* Dropdown filtros */}
+          {showFilters && (
+            <div className="absolute right-0 mt-2 w-60 bg-base-100 border border-gray-300 rounded-md shadow-lg p-4 z-10">
+              {/* Aquí poner los filtros reales */}
+              <p className="text-sm font-semibold mb-2">Filtros disponibles</p>
+              <label className="flex items-center space-x-2 mb-1">
+                <input type="checkbox" className="checkbox checkbox-outline" />
+                <span>Administradores</span>
+              </label>
+              <label className="flex items-center space-x-2 mb-1">
+                <input type="checkbox" className="checkbox checkbox-outline" />
+                <span>Usuarios Activos</span>
+              </label>
+              <label className="flex items-center space-x-2 mb-1">
+                <input type="checkbox" className="checkbox checkbox-outline" />
+                <span>Sin cargo</span>
+              </label>
+              <button
+                className="btn btn-sm btn-outline mt-3 w-full"
+                onClick={() => {
+                  // Aquí podrías resetear filtros si quieres
+                  message.info('Filtros reseteados');
+                  setShowFilters(false);
+                }}
+              >
+                Limpiar Filtros
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          className="btn btn-outline flex items-center gap-2"
+          onClick={() => {
+            setIsEditMode(false);
+            setFormData({
+              name: '',
+              email: '',
+              password: '',
+              role: 'user',
+              cargo: '',
+              iniciales: '',
+              username: ''
+            });
+            setFormErrors({});
+            setIsModalOpen(true);
+          }}
+        >
+          <Plus size={20} /> Nuevo Usuario
+        </button>
       </div>
+
+      {/* Tabla de usuarios */}
+      <table className="table w-full mt-4">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Cargo</th>
+            <th>Iniciales</th>
+            <th>Usuario</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredUsers.length > 0 ? (
+            filteredUsers.map(user => (
+              <tr key={user._id}>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>{user.cargo || '-'}</td>
+                <td>{user.iniciales}</td>
+                <td>{user.username}</td>
+                <td>
+                  <button
+                    className="btn btn-sm btn-outline btn-danger"
+                    onClick={() => handleEditUser(user)}
+                  >
+                    Editar
+                  </button>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7" className="text-center py-4">
+                No se encontraron usuarios
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
