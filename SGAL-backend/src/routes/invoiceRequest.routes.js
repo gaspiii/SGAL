@@ -15,6 +15,10 @@ import { invoiceRequestSchema } from "../schemas/invoiceRequest.schema.js";
 
 const router = express.Router();
 
+
+// Ruta pública para obtener solicitudes sin token
+router.get("/public", getInvoiceRequests);
+
 // Todas las rutas protegidas con autenticación
 router.use(authRequired);
 
