@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaFlask } from 'react-icons/fa';
 import axios from 'axios';
 import { message } from 'antd';
+import { UserContext } from '../context/UserContext';
 
 const AuthForm = () => {
   const navigate = useNavigate();
+  const { login } = useContext(UserContext);
+
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,46 +19,43 @@ const AuthForm = () => {
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  
-  try {
-    const response = await axios.post('http://localhost:3000/api/auth/login', {
-      email: form.email,
-      password: form.password
-    }, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    e.preventDefault();
+    setIsLoading(true);
 
-    if (response.data && (response.data.message === 'Inicio de sesión exitoso')) {
-      // Guardar el token en las cookies
-      document.cookie = `token=${response.data.token}; path=/; secure; samesite=strict`;
-      // Obtener el perfil del usuario después del login exitoso
-      const profileResponse = await axios.get('http://localhost:3000/api/auth/profile', {
-        withCredentials: true
+    try {
+      // Enviar credenciales
+      const response = await axios.post('http://localhost:3000/api/auth/login', form, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      
-      // Guardar los datos del usuario en localStorage
-      localStorage.setItem('user', JSON.stringify(profileResponse.data));
-      
-      message.success('Inicio de sesión exitoso');
-      navigate('/dashboard');
-    } else {
-      setError(response.data?.message || 'Credenciales incorrectas');
+
+      if (response.data?.token) {
+        // Obtener perfil del usuario
+        const profileResponse = await axios.get('http://localhost:3000/api/auth/profile', {
+          headers: {
+            Authorization: `Bearer ${response.data.token}`
+          }
+        });
+
+        // Guardar token y usuario en el contexto
+        login(response.data.token, profileResponse.data);
+
+        message.success('Inicio de sesión exitoso');
+        navigate('/dashboard');
+      } else {
+        setError(response.data?.message || 'Credenciales incorrectas');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Error al conectar con el servidor');
+    } finally {
+      setIsLoading(false);
     }
-  } catch (err) {
-    console.error('Login error:', err);
-    setError(err.response?.data?.message || 'Error al conectar con el servidor');
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
 
-  return (
+return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
@@ -63,7 +63,7 @@ const AuthForm = () => {
             <FaFlask className="text-4xl text-white" />
           </div>
           <h1 className="text-3xl font-bold text-red-900 text-center">S.G.A.L.</h1>
-          <p className="text-black-700 mt-1 text-center font-medium">Sistema de Gestión Administrativa para Laboratorios</p>
+          <p className="text-black-700 mt-1 text-center font-medium">Sistema de Gestión Administrativo para Laboratorios Técnicos</p>
         </div>
 
         <div className="card bg-white shadow-2xl rounded-xl overflow-hidden border border-red-100">
@@ -150,7 +150,7 @@ const AuthForm = () => {
         </div>
 
         <div className="mt-6 text-center text-sm text-red-600">
-          © {new Date().getFullYear()} S.G.A.L. - Sistema de Gestión Administrativa para Laboratorios
+          © {new Date().getFullYear()} S.G.A.L. - Sistema de Gestión Administrativo para Laboratorios Técnicos
         </div>
         <div className="text-center text-xs text-red-500 mt-1">
           Todos los derechos reservados
