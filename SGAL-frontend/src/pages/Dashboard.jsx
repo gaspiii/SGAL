@@ -5,6 +5,9 @@ import TabHome from '../components/tabs/TabHome';
 import TabQuotations from '../components/tabs/TabQuotations';
 import TabRequests from '../components/tabs/TabRequests';
 import TabSettings from '../components/tabs/TabSettings';
+import TabUsers from '../components/tabs/TabUsers';
+import TabGroups from '../components/tabs/TabGroups';
+import TabClients from '../components/tabs/TabClients';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
@@ -24,6 +27,18 @@ const Dashboard = () => {
             return <TabRequests />;
           default:
             return <TabQuotations />;
+        }
+      case 'accounts':
+        // Manejar las subpestañas de cuentas
+        switch (activeSubTab) {
+          case 'users':
+            return <TabUsers />;
+          case 'groups':
+            return <TabGroups />;
+          case 'clients':
+            return <TabClients />;
+          default:
+            return <TabUsers />;
         }
       case 'settings':
         return <TabSettings />;
