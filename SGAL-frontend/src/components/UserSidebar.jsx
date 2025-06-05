@@ -73,26 +73,35 @@ const navigate = useNavigate();
               : <ChevronRight className="w-4 h-4 ml-auto" />
             }
           </button>
-          {activeTab === 'quotes' && (
-            <ul className="menu menu-sm pl-4 w-full">
-              <li>
-                <button
-                  className={activeSubTab === 'quotations' ? 'active' : ''}
-                  onClick={() => setActiveSubTab('quotations')}
-                >
-                  Lista de cotizaciones
-                </button>
-              </li>
-              <li>
-                <button
-                  className={activeSubTab === 'requests' ? 'active' : ''}
-                  onClick={() => setActiveSubTab('requests')}
-                >
-                  Solicitudes
-                </button>
-              </li>
-            </ul>
-          )}
+         {activeTab === 'quotes' && (
+  <ul className="menu menu-sm pl-4 w-full space-y-1">
+    <li>
+      <button
+        className={`w-full text-left px-4 py-2 rounded ${
+          activeSubTab === 'quotations'
+            ? 'bg-primary/10 text-primary font-semibold'
+            : 'hover:bg-base-200'
+        }`}
+        onClick={() => setActiveSubTab('quotations')}
+      >
+        Lista de cotizaciones
+      </button>
+    </li>
+    <li>
+      <button
+        className={`w-full text-left px-4 py-2 rounded ${
+          activeSubTab === 'requests'
+            ? 'bg-primary/10 text-primary font-semibold'
+            : 'hover:bg-base-200'
+        }`}
+        onClick={() => setActiveSubTab('requests')}
+      >
+        Solicitudes
+      </button>
+    </li>
+  </ul>
+)}
+
         </div>
 
         {/* Administración */}
@@ -112,10 +121,14 @@ const navigate = useNavigate();
             }
           </button>
           {isAccountsActive && (
-            <ul className="menu menu-sm pl-4 w-full">
+            <ul className="menu menu-sm pl-4 w-full space-y-1">
               <li>
                 <button
-                  className={activeSubTab === 'users' ? 'active' : ''}
+                  className={`w-full text-left px-4 py-2 rounded ${
+                    activeSubTab === 'users'
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'hover:bg-base-200'
+                  }`}
                   onClick={() => setActiveSubTab('users')}
                 >
                   Usuarios
@@ -123,7 +136,11 @@ const navigate = useNavigate();
               </li>
               <li>
                 <button
-                  className={activeSubTab === 'groups' ? 'active' : ''}
+                  className={`w-full text-left px-4 py-2 rounded ${
+                    activeSubTab === 'groups'
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'hover:bg-base-200'
+                  }`}
                   onClick={() => setActiveSubTab('groups')}
                 >
                   Grupos
@@ -131,14 +148,19 @@ const navigate = useNavigate();
               </li>
               <li>
                 <button
-                  className={activeSubTab === 'clients' ? 'active' : ''}
+                  className={`w-full text-left px-4 py-2 rounded ${
+                    activeSubTab === 'clients'
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'hover:bg-base-200'
+                  }`}
                   onClick={() => setActiveSubTab('clients')}
                 >
                   Clientes
                 </button>
               </li>
             </ul>
-          )}
+            )}
+
         </div>
       </div>
 
@@ -155,7 +177,13 @@ const navigate = useNavigate();
           <span>Configuración</span>
         </button>
 
-        <button className="btn btn-ghost justify-start w-full">
+        <button
+          className={`btn btn-ghost justify-start w-full ${activeTab === 'help' ? 'btn-active' : ''}`}
+          onClick={() => {
+            setActiveTab('help');
+            setActiveSubTab(null);
+          }}
+        >
           <HelpCircle className="w-5 h-5" />
           <span>Ayuda</span>
         </button>

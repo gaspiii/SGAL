@@ -464,8 +464,8 @@ const TabClients = () => {
                     <tr key={client._id || client.id}>
                       <td>
                         <div className="flex items-center gap-3">
-                          <div className="avatar placeholder">
-                            <div className="bg-neutral text-neutral-content rounded-full w-8 h-8">
+                          <div className="placeholder">
+                            <div className="bg-neutral text-neutral-content rounded-full w-8 h-8 flex items-center justify-center">
                               <Briefcase className="w-4 h-4" />
                             </div>
                           </div>

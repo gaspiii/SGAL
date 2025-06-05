@@ -8,6 +8,7 @@ import TabSettings from '../components/tabs/TabSettings';
 import TabUsers from '../components/tabs/TabUsers';
 import TabGroups from '../components/tabs/TabGroups';
 import TabClients from '../components/tabs/TabClients';
+import TabHelp from '../components/tabs/TabHelp';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Dashboard = () => {
@@ -49,6 +50,8 @@ const Dashboard = () => {
         }
       case 'settings':
         return <TabSettings />;
+      case 'help':
+        return <TabHelp />;
       default:
         return <TabHome />;
     }
