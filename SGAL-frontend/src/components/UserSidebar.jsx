@@ -1,9 +1,10 @@
-// src/components/UserSidebar.jsx
 import React from 'react';
 import {
   Home, FileText, ChevronDown, ChevronRight,
   Users, Settings, HelpCircle, User, LogOut
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 
 const UserSidebar = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab }) => {
   // Obtener datos del usuario desde localStorage
@@ -11,11 +12,12 @@ const UserSidebar = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab })
     name: 'Invitado',
     role: 'Sin rol'
   };
+const navigate = useNavigate();
 
   // Función para cerrar sesión
   const handleLogout = () => {
     localStorage.clear();
-    window.location.href = '/login'; // o usar navigate('/login') si usas react-router
+    navigate('/');
   };
 
   const isAccountsActive = activeTab === 'accounts';
