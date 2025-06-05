@@ -190,7 +190,7 @@ const TabUsers = () => {
 
   return (
     <div className="space-y-6 relative">
-      {/* Modal para crear/editar usuario */}
+    
       <Modal
         title={isEditMode ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
         open={isModalOpen}
@@ -331,79 +331,81 @@ const TabUsers = () => {
           </div>
         </form>
       </Modal>
-
-      {/* Barra superior con búsqueda y filtros */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2 w-full max-w-md">
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Buscar usuario..."
-            value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            className="input input-bordered w-full"
-          />
-        </div>
-
-        <div className="relative" ref={filtersRef}>
-          <button
-            className="btn btn-outline btn-secondary flex items-center gap-2"
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            <Filter size={20} /> Filtros
-          </button>
-
-          {/* Dropdown filtros */}
-          {showFilters && (
-            <div className="absolute right-0 mt-2 w-60 bg-base-100 border border-gray-300 rounded-md shadow-lg p-4 z-10">
-              {/* Aquí poner los filtros reales */}
-              <p className="text-sm font-semibold mb-2">Filtros disponibles</p>
-              <label className="flex items-center space-x-2 mb-1">
-                <input type="checkbox" className="checkbox checkbox-outline" />
-                <span>Administradores</span>
-              </label>
-              <label className="flex items-center space-x-2 mb-1">
-                <input type="checkbox" className="checkbox checkbox-outline" />
-                <span>Usuarios Activos</span>
-              </label>
-              <label className="flex items-center space-x-2 mb-1">
-                <input type="checkbox" className="checkbox checkbox-outline" />
-                <span>Sin cargo</span>
-              </label>
-              <button
-                className="btn btn-sm btn-outline mt-3 w-full"
-                onClick={() => {
-                  // Aquí podrías resetear filtros si quieres
-                  message.info('Filtros reseteados');
-                  setShowFilters(false);
-                }}
-              >
-                Limpiar Filtros
-              </button>
-            </div>
-          )}
-        </div>
-
-        <button
-          className="btn btn-outline flex items-center gap-2"
-          onClick={() => {
-            setIsEditMode(false);
-            setFormData({
-              name: '',
-              email: '',
-              password: '',
-              role: 'user',
-              cargo: '',
-              iniciales: '',
-              username: ''
-            });
-            setFormErrors({});
-            setIsModalOpen(true);
-          }}
-        >
-          <Plus size={20} /> Nuevo Usuario
-        </button>
+      <div className="card bg-base-100 p-5 shadow-lg">
+        <div className="card-body p-0">
+          <div className="flex justify-between items-center flex-wrap gap-4">
+            <div className="flex items-center space-x-2 w-full sm:max-w-md">
+        <Search size={20} />
+        <input
+          type="text"
+          placeholder="Buscar usuario..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="input input-bordered w-full"
+        />
       </div>
+
+        {/* Filtros y botón crear agrupados */}
+        <div className="flex items-center gap-2 ml-auto">
+          <div className="relative" ref={filtersRef}>
+            <button
+              className="btn btn-outline btn-secondary flex items-center gap-2"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter size={20} /> Filtros
+            </button>
+
+            {/* Dropdown filtros */}
+            {showFilters && (
+              <div className="absolute right-0 mt-2 w-60 bg-base-100 border border-gray-300 rounded-md shadow-lg p-4 z-10">
+                <p className="text-sm font-semibold mb-2">Filtros disponibles</p>
+                <label className="flex items-center space-x-2 mb-1">
+                  <input type="checkbox" className="checkbox checkbox-outline" />
+                  <span>Administradores</span>
+                </label>
+                <label className="flex items-center space-x-2 mb-1">
+                  <input type="checkbox" className="checkbox checkbox-outline" />
+                  <span>Usuarios Activos</span>
+                </label>
+                <label className="flex items-center space-x-2 mb-1">
+                  <input type="checkbox" className="checkbox checkbox-outline" />
+                  <span>Sin cargo</span>
+                </label>
+                <button
+                  className="btn btn-sm btn-outline mt-3 w-full"
+                  onClick={() => {
+                    message.info('Filtros reseteados');
+                    setShowFilters(false);
+                  }}
+                >
+                  Limpiar Filtros
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button
+            className="btn btn-outline flex items-center gap-2"
+            onClick={() => {
+              setIsEditMode(false);
+              setFormData({
+                name: '',
+                email: '',
+                password: '',
+                role: 'user',
+                cargo: '',
+                iniciales: '',
+                username: ''
+              });
+              setFormErrors({});
+              setIsModalOpen(true);
+            }}
+          >
+            <Plus size={20} /> Nuevo Usuario
+          </button>
+        </div>
+      </div>
+
 
       {/* Tabla de usuarios */}
       <table className="table w-full mt-4">
@@ -447,7 +449,7 @@ const TabUsers = () => {
           )}
         </tbody>
       </table>
-    </div>
+    </div></div></div>
   );
 };
 

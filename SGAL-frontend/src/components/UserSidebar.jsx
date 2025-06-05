@@ -25,12 +25,14 @@ const UserSidebar = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab })
       {/* Perfil del usuario */}
       <div className="p-4 border-b border-base-200">
         <div className="flex items-center gap-3">
-          <div className="avatar placeholder">
-            <div className="bg-neutral text-neutral-content rounded-full w-10 h-10 flex items-center justify-center">
-  <span className="text-lg">
+          <div className=" placeholder">
+           <div className="bg-neutral text-neutral-content rounded-full text-center w-10 h-10 flex items-center justify-center">
+  <span className="text-md font-bold leading-none">
     {userData.name?.charAt(0).toUpperCase()}
   </span>
 </div>
+
+
 
           </div>
           <div>

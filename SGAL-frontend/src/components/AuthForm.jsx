@@ -62,13 +62,16 @@ const AuthForm = () => {
           <div className="bg-red-800 p-4 rounded-full mb-4 shadow-lg">
             <FaFlask className="text-4xl text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-black text-center">S.G.A.L.</h1>
+          <h1 className="text-3xl font-bold text-red-900 text-center">S.G.A.L.</h1>
           <p className="text-black-700 mt-1 text-center font-medium">Sistema de Gestión Administrativa para Laboratorios</p>
         </div>
 
         <div className="card bg-white shadow-2xl rounded-xl overflow-hidden border border-red-100">
           <div className="card-body p-8">
-            
+            <h2 className="text-2xl font-bold text-center text-red-900 mb-6">
+              Acceso al Sistema
+            </h2>
+
             {error && (
               <div className="alert alert-error mb-6 py-3 px-4 rounded-lg bg-red-50 text-red-700 text-sm flex items-center border border-red-200">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -122,7 +125,7 @@ const AuthForm = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className={`btn w-full py-3 px-4 btn-outline rounded-lg  hover:bg-red-100 text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition shadow-lg ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                  className={`btn w-full py-3 px-4 rounded-lg bg-red-800 hover:bg-red-900 text-white font-medium focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2 transition shadow-lg ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -146,10 +149,10 @@ const AuthForm = () => {
           </div>
         </div>
 
-        <div className="mt-6 text-center text-sm text-black">
+        <div className="mt-6 text-center text-sm text-red-600">
           © {new Date().getFullYear()} S.G.A.L. - Sistema de Gestión Administrativa para Laboratorios
         </div>
-        <div className="text-center text-xs text-black mt-1">
+        <div className="text-center text-xs text-red-500 mt-1">
           Todos los derechos reservados
         </div>
       </div>
