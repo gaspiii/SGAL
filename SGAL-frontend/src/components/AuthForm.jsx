@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaFlask } from 'react-icons/fa';
+import axios from 'axios';
+import { message } from 'antd';
 
 const AuthForm = () => {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError(null); // Clear errors when user types
+    setError(null);
   };
 
   const handleLogin = async (e) => {
@@ -18,24 +20,32 @@ const AuthForm = () => {
     setIsLoading(true);
     
     try {
-      // Simulación de autenticación con delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Validación básica (en producción usaría un backend real)
-      if (form.username && form.password) {
+      const response = await axios.post('http://localhost:3000/api/auth/login', {
+        email: form.email,
+        password: form.password
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data && response.data.success) {
+        message.success('Inicio de sesión exitoso');
         navigate('/dashboard');
       } else {
-        setError('Por favor ingrese credenciales válidas');
+        setError(response.data?.message || 'Credenciales incorrectas');
       }
     } catch (err) {
-      setError('Error al conectar con el servidor');
+      console.error('Login error:', err);
+      setError(err.response?.data?.message || 'Error al conectar con el servidor');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-centerp-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
           <div className="bg-red-800 p-4 rounded-full mb-4 shadow-lg">
@@ -63,19 +73,19 @@ const AuthForm = () => {
             <form onSubmit={handleLogin} className="space-y-5">
               <div className="form-control">
                 <label className="label block mb-2 text-sm font-medium text-red-800">
-                  Usuario
+                  Correo Electrónico
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <FaUser className="h-5 w-5 text-red-400" />
                   </div>
                   <input
-                    type="text"
-                    name="username"
-                    value={form.username}
+                    type="email"
+                    name="email"
+                    value={form.email}
                     onChange={handleChange}
                     className="input pl-10 w-full py-3 px-4 border border-red-200 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition"
-                    placeholder="Ingrese su usuario"
+                    placeholder="Ingrese su correo electrónico"
                     required
                   />
                 </div>
