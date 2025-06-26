@@ -9,14 +9,6 @@ export const clientSchema = z.object({
         required_error: "RUT es requerido",
     }).min(8, "RUT debe tener al menos 8 caracteres").trim(),
     
-    // giro: z.string({
-    //     required_error: "Giro es requerido",
-    // }).min(1, "Giro no puede estar vacío").trim(),
-    
-    // comuna: z.string({
-    //     required_error: "Comuna es requerida",
-    // }).min(1, "Comuna no puede estar vacía").trim(),
-    
     email: z.string({
         required_error: "Email es requerido",
     }).email("Email inválido"),

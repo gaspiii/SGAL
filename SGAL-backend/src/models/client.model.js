@@ -13,16 +13,6 @@ const clientSchema = new mongoose.Schema(
             unique: true,
             trim: true,
         },
-        // giro:{
-        //     type: String,
-        //     required: true,
-        //     trim: true,
-        // },
-        // comuna:{
-        //     type: String,
-        //     required: true,
-        //     trim: true,
-        // },
         email: {
             type: String,
             required: true,

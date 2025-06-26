@@ -19,8 +19,6 @@ export const createClient = async (req, res) => {
         const newClient = new Client({
             razonSocial,
             rut,
-            // giro,
-            // comuna,
             email,
             phone,
             address
