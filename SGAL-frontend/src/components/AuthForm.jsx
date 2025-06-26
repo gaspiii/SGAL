@@ -57,7 +57,7 @@ const AuthForm = () => {
     }
   };
 
-  return (
+return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
@@ -65,7 +65,7 @@ const AuthForm = () => {
             <FaFlask className="text-4xl text-white" />
           </div>
           <h1 className="text-3xl font-bold text-red-900 text-center">S.G.A.L.</h1>
-          <p className="text-black-700 mt-1 text-center font-medium">Sistema de Gestión Administrativa para Laboratorios</p>
+          <p className="text-black-700 mt-1 text-center font-medium">Sistema de Gestión Administrativo para Laboratorios Técnicos</p>
         </div>
 
         <div className="card bg-white shadow-2xl rounded-xl overflow-hidden border border-red-100">
@@ -152,7 +152,7 @@ const AuthForm = () => {
         </div>
 
         <div className="mt-6 text-center text-sm text-red-600">
-          © {new Date().getFullYear()} S.G.A.L. - Sistema de Gestión Administrativa para Laboratorios
+          © {new Date().getFullYear()} S.G.A.L. - Sistema de Gestión Administrativo para Laboratorios Técnicos
         </div>
         <div className="text-center text-xs text-red-500 mt-1">
           Todos los derechos reservados

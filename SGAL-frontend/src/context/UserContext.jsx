@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Cargar datos desde localStorage al inicio
   useEffect(() => {
     // Verificar autenticación al cargar la aplicación
     const verifyAuth = async () => {
@@ -45,9 +46,17 @@ export const UserProvider = ({ children }) => {
     verifyAuth();
   }, []);
 
-  const updateUser = (userData) => {
+  // Función para iniciar sesión y guardar token + usuario
+  const login = (token, userData) => {
+    localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
+  };
+
+  // Nueva función para actualizar el usuario
+  const updateUser = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = async () => {

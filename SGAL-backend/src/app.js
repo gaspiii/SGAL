@@ -9,6 +9,7 @@ import clientRoutes from './routes/client.routes.js';
 import cotizacionRoutes from './routes/cotizacion.routes.js';
 import solicitudRoutes from './routes/solicitud.routes.js';
 import grupoRoutes from './routes/grupo.routes.js';
+import solicitudCotizacionRoutes from './routes/invoiceRequest.routes.js';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.get('/health', (req, res) => {
 // Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/clients', clientRoutes);
+app.use('/api/solicitudCotizacion', solicitudCotizacionRoutes);
 app.use('/api/cotizaciones', cotizacionRoutes);
 app.use('/api/solicitudes', solicitudRoutes);
 app.use('/api/grupos', grupoRoutes);
