@@ -78,14 +78,15 @@ const TabClientes = () => {
     //
     const validateForm = () => {
         const errors = {};
-        if (!formData.razonSocial) errors.razonSocial = 'Razón social es requerida';
         if (!formData.rut) errors.rut = 'RUT es requerido';
+        if (!formData.razonSocial) errors.razonSocial = 'Razón social es requerida';
         if (!formData.email) {
             errors.email = 'Email es requerido';
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             errors.email = 'Email no válido';
         }
         if (!formData.phone) errors.phone = 'Teléfono es requerido';
+        if (!formData.address) errors.address = 'La dirección es requerida';
 
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
@@ -159,7 +160,7 @@ const TabClientes = () => {
                 message.error('Ingrese un RUT válido.');
                 return;
             }
-            // Solo aquí reescribimos payload.rut
+            // Aquí reescribimos payload.rut
             payload.rut = rutFormateado;
         }
 
@@ -299,8 +300,10 @@ const TabClientes = () => {
                                 name="address"
                                 value={formData.address}
                                 onChange={handleInputChange}
-                                className="input input-bordered"
+                                className={`input input-bordered" ${formErrors.address ? 'input-error' : ''}`}
+                                placeholder="Calle + N°, Comuna, Ciudad"
                             />
+                            {formErrors.address && <span className="text-error text-xs">{formErrors.address}</span>}
                         </div>
 
                         {/* Teléfono */}
@@ -314,6 +317,7 @@ const TabClientes = () => {
                                 value={formData.phone}
                                 onChange={handleInputChange}
                                 className={`input input-bordered ${formErrors.phone ? 'input-error' : ''}`}
+                                placeholder="+56 9 1234 5678"
                             />
                             {formErrors.phone && <span className="text-error text-xs">{formErrors.phone}</span>}
                         </div>
@@ -329,6 +333,7 @@ const TabClientes = () => {
                                 value={formData.email}
                                 onChange={handleInputChange}
                                 className={`input input-bordered ${formErrors.email ? 'input-error' : ''}`}
+                                placeholder="usuario@dominio.com"
                             />
                             {formErrors.email && <span className="text-error text-xs">{formErrors.email}</span>}
                         </div>
