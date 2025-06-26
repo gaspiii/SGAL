@@ -120,6 +120,7 @@ const navigate = useNavigate();
               : <ChevronRight className="w-4 h-4 ml-auto" />
             }
           </button>
+
           {isAccountsActive && (
             <ul className="menu menu-sm pl-4 w-full space-y-1">
               <li>
@@ -134,6 +135,7 @@ const navigate = useNavigate();
                   Usuarios
                 </button>
               </li>
+
               <li>
                 <button
                   className={`w-full text-left px-4 py-2 rounded ${
@@ -146,18 +148,19 @@ const navigate = useNavigate();
                   Grupos
                 </button>
               </li>
-              <li>
-                <button
-                  className={`w-full text-left px-4 py-2 rounded ${
-                    activeSubTab === 'clients'
-                      ? 'bg-primary/10 text-primary font-semibold'
-                      : 'hover:bg-base-200'
-                  }`}
-                  onClick={() => setActiveSubTab('clients')}
-                >
-                  Clientes
-                </button>
-              </li>
+
+                <li>
+                    <button
+                        className={`w-full text-left px-4 py-2 rounded ${
+                            activeSubTab === 'clientes'
+                                ? 'bg-primary/10 text-primary font-semibold'
+                                : 'hover:bg-base-200'
+                        }`}
+                        onClick={() => setActiveSubTab('clientes')}
+                    >
+                        Clientes
+                    </button>
+                </li>
             </ul>
             )}
 
