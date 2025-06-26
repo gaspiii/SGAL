@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUser, FaLock, FaFlask } from 'react-icons/fa';
-import axios from 'axios';
+import API from '../api/axios.js';
 import { message } from 'antd';
+import { UserContext } from '../context/UserContext.jsx';
 
 const AuthForm = () => {
   const navigate = useNavigate();
+  const { updateUser } = useContext(UserContext);
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,44 +18,44 @@ const AuthForm = () => {
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  
-  try {
-    const response = await axios.post('http://localhost:3000/api/auth/login', {
-      email: form.email,
-      password: form.password
-    }, {
-      withCredentials: true,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.data && (response.data.message === 'Inicio de sesión exitoso')) {
-      // Guardar el token en las cookies
-      document.cookie = `token=${response.data.token}; path=/; secure; samesite=strict`;
-      // Obtener el perfil del usuario después del login exitoso
-      const profileResponse = await axios.get('http://localhost:3000/api/auth/profile', {
-        withCredentials: true
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      console.log('Intentando login con:', form.email);
+      console.log('Cookies antes del login:', document.cookie);
+      
+      const response = await API.post('/auth/login', {
+        email: form.email,
+        password: form.password
       });
-      
-      // Guardar los datos del usuario en localStorage
-      localStorage.setItem('user', JSON.stringify(profileResponse.data));
-      
-      message.success('Inicio de sesión exitoso');
-      navigate('/dashboard');
-    } else {
-      setError(response.data?.message || 'Credenciales incorrectas');
-    }
-  } catch (err) {
-    console.error('Login error:', err);
-    setError(err.response?.data?.message || 'Error al conectar con el servidor');
-  } finally {
-    setIsLoading(false);
-  }
-};
 
+      console.log('Login response:', response.data);
+      console.log('Cookies después del login:', document.cookie);
+
+      if (response.data && response.data.message === 'Inicio de sesión exitoso') {
+        // El token se guarda automáticamente en las cookies por el backend
+        // Actualizar el contexto del usuario
+        updateUser(response.data.user);
+        
+        console.log('Usuario guardado en contexto:', response.data.user);
+        console.log('Verificando cookies después de guardar usuario:', document.cookie);
+        
+        message.success('Inicio de sesión exitoso');
+        navigate('/dashboard');
+      } else {
+        setError(response.data?.message || 'Credenciales incorrectas');
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      console.error('Error response:', err.response);
+      console.error('Error status:', err.response?.status);
+      console.error('Error data:', err.response?.data);
+      setError(err.response?.data?.message || 'Error al conectar con el servidor');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">

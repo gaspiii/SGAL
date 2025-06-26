@@ -32,8 +32,8 @@ const cotizacionSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ["pendiente", "aprobado", "rechazado"],
-            default: "pendiente",
+            enum: ["en-revisión", "pendiente", "aprobado", "rechazado"],
+            default: "en-revisión",
         },
     },
     { timestamps: true }

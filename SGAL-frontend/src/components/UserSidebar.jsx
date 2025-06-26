@@ -75,6 +75,7 @@ const navigate = useNavigate();
           </button>
          {activeTab === 'quotes' && (
   <ul className="menu menu-sm pl-4 w-full space-y-1">
+    {/*
     <li>
       <button
         className={`w-full text-left px-4 py-2 rounded ${
@@ -87,6 +88,7 @@ const navigate = useNavigate();
         Lista de cotizaciones
       </button>
     </li>
+    */}
     <li>
       <button
         className={`w-full text-left px-4 py-2 rounded ${

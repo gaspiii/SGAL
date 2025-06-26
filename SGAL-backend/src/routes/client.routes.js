@@ -3,6 +3,7 @@ import {
     createClient,
     getClients,
     getClientById,
+    getClientByRut,
     updateClient,
     deleteClient
 } from "../controllers/client.controller.js";
@@ -21,6 +22,9 @@ router.post("/", verifyRole("admin"), validateSchema(clientSchema), createClient
 
 // Obtener todos los clientes
 router.get("/", getClients);
+
+// Buscar cliente por RUT
+router.get("/rut/:rut", getClientByRut);
 
 // Obtener cliente por ID
 router.get("/:id", getClientById);

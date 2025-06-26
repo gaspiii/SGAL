@@ -36,11 +36,11 @@ export const updateCotizacionSchema = z.object({
     clientId: z.string().regex(/^[0-9a-fA-F]{24}$/, "ID del cliente inválido").optional(),
     items: z.array(itemSchema).min(1, "Debe haber al menos un item").optional(),
     totalAmount: z.number().min(0, "El monto total debe ser mayor o igual a 0").optional(),
-    status: z.enum(["pendiente", "aprobado", "rechazado"]).optional(),
+    status: z.enum(["en-revisión", "pendiente", "aprobado", "rechazado"]).optional(),
 });
 
 export const statusSchema = z.object({
-    status: z.enum(["pendiente", "aprobado", "rechazado"], {
+    status: z.enum(["en-revisión", "pendiente", "aprobado", "rechazado"], {
         required_error: "Estado es requerido"
     }),
 });

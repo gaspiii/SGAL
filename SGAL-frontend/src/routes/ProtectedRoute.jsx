@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import axios from 'axios';
+import API from '../api/axios.js';
 
 const ProtectedRoute = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = React.useState(null);
@@ -9,11 +8,12 @@ const ProtectedRoute = ({ children }) => {
   React.useEffect(() => {
     const verifyAuth = async () => {
       try {
-        await axios.get('http://localhost:3000/api/auth/verify', {
-          withCredentials: true
-        });
+        console.log('Verificando autenticación...');
+        await API.get('/auth/profile');
+        console.log('Autenticación verificada correctamente');
         setIsAuthenticated(true);
       } catch (error) {
+        console.error('Error verificando autenticación:', error);
         setIsAuthenticated(false);
       }
     };

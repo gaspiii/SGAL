@@ -99,6 +99,35 @@ export const getClientById = async (req, res) => {
     }
 };
 
+// Buscar cliente por RUT
+export const getClientByRut = async (req, res) => {
+    try {
+        const { rut } = req.params;
+        
+        if (!rut) {
+            return res.status(400).json({ message: "RUT es requerido" });
+        }
+
+        const client = await Client.findOne({ rut: rut.trim() });
+
+        if (!client) {
+            return res.status(404).json({ 
+                message: "Cliente no encontrado con ese RUT",
+                exists: false 
+            });
+        }
+
+        res.json({ 
+            message: "Cliente encontrado",
+            exists: true,
+            client 
+        });
+    } catch (error) {
+        console.error("Error al buscar cliente por RUT:", error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+};
+
 // Actualizar un cliente
 export const updateClient = async (req, res) => {
     try {

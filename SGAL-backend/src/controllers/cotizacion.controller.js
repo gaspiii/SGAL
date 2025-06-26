@@ -16,7 +16,7 @@ export const createCotizacion = async (req, res) => {
             client: clientId,
             items,
             totalAmount,
-            status: "pendiente"
+            status: "en-revisión"
         });
 
         await newCotizacion.save();
@@ -143,7 +143,7 @@ export const updateCotizacionStatus = async (req, res) => {
         const { id } = req.params;
         const { status } = req.body;
 
-        const validStatuses = ["pendiente", "aprobado", "rechazado"];
+        const validStatuses = ["en-revisión", "pendiente", "aprobado", "rechazado"];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ 
                 message: "Estado inválido. Los estados válidos son: " + validStatuses.join(", ") 
