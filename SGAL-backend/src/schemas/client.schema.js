@@ -25,8 +25,6 @@ export const clientSchema = z.object({
 export const updateClientSchema = z.object({
     razonSocial: z.string().min(1, "Razón social no puede estar vacía").trim().optional(),
     rut: z.string().min(8, "RUT debe tener al menos 8 caracteres").trim().optional(),
-    // giro: z.string().min(1, "Giro no puede estar vacío").trim().optional(),
-    // comuna: z.string().min(1, "Comuna no puede estar vacía").trim().optional(),
     email: z.string().email("Email inválido").optional(),
     phone: z.string().min(8, "Teléfono debe tener al menos 8 caracteres").optional(),
     address: z.string().min(1, "Dirección no puede estar vacía").optional(),

@@ -7,7 +7,8 @@ export const createClient = async (req, res) => {
 
         // Verificar si el cliente ya existe (por RUT o email)
         const existingClient = await Client.findOne({ 
-            $or: [{ rut }, { email }] 
+            $or: [{ rut }]
+            // $or: [{ rut }, { email }] // Eliminar una vez comrprobado.
         });
         
         if (existingClient) {
