@@ -7,7 +7,7 @@ import TabRequests from '../components/tabs/TabRequests';
 import TabSettings from '../components/tabs/TabSettings';
 import TabUsers from '../components/tabs/TabUsers';
 import TabGroups from '../components/tabs/TabGroups';
-import TabClients from '../components/tabs/TabClients';
+import TabClientes from '../components/tabs/TabClientes';
 import TabHelp from '../components/tabs/TabHelp';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -43,8 +43,8 @@ const Dashboard = () => {
             return <TabUsers />;
           case 'groups':
             return <TabGroups />;
-          case 'clients':
-            return <TabClients />;
+          case 'clientes':
+            return <TabClientes />;
           default:
             return <TabUsers />;
         }

@@ -7,7 +7,8 @@ export const createClient = async (req, res) => {
 
         // Verificar si el cliente ya existe (por RUT o email)
         const existingClient = await Client.findOne({ 
-            $or: [{ rut }, { email }] 
+            $or: [{ rut }]
+            // $or: [{ rut }, { email }] // Eliminar una vez comrprobado.
         });
         
         if (existingClient) {
@@ -19,8 +20,6 @@ export const createClient = async (req, res) => {
         const newClient = new Client({
             razonSocial,
             rut,
-            giro,
-            comuna,
             email,
             phone,
             address
@@ -132,7 +131,7 @@ export const getClientByRut = async (req, res) => {
 export const updateClient = async (req, res) => {
     try {
         const { id } = req.params;
-        const { razonSocial, rut, giro, comuna, email, phone, address } = req.body;
+        const { razonSocial, rut, email, phone, address } = req.body;
 
         // Verificar si el cliente existe
         const client = await Client.findById(id);
@@ -157,7 +156,7 @@ export const updateClient = async (req, res) => {
 
         const updatedClient = await Client.findByIdAndUpdate(
             id,
-            { razonSocial, rut, giro, comuna, email, phone, address },
+            { razonSocial, rut, email, phone, address },
             { new: true, runValidators: true }
         );
 
