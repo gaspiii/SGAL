@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, Plus, X, Check, Trash2, Briefcase } from 'lucide-react';
 import { Modal, message, Badge, Spin } from 'antd';
+import { validarFormatearRut } from '../../lib/validarRut';
 import axios from 'axios';
 
 const api = axios.create({
@@ -136,21 +137,45 @@ const TabClientes = () => {
         }
     };
 
+
     //
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // 2) Validación genérica del formulario
         if (!validateForm()) return;
+
+        // 3) Prepara un objeto payload basado en formData
+        let payload = { ...formData };
+
+        // 4) Si estamos CREANDO (no en edición), validamos y formateamos el RUT
+        if (!isEditMode) {
+            const rutFormateado = validarFormatearRut(formData.rut);
+            if (!rutFormateado) {
+                setFormErrors(prev => ({
+                    ...prev,
+                    rut: 'Ingrese un RUT válido.'
+                }));
+                message.error('Ingrese un RUT válido.');
+                return;
+            }
+            // Solo aquí reescribimos payload.rut
+            payload.rut = rutFormateado;
+        }
 
         setLoading(true);
         try {
             if (isEditMode && editingClientId) {
-                await api.put(`/api/clients/${editingClientId}`, formData);
+                // EN EDICIÓN enviamos payload (que coincide con formData)
+                await api.put(`/api/clients/${editingClientId}`, payload);
                 message.success('Cliente actualizado exitosamente');
             } else {
-                await api.post('/api/clients', formData);
+                // EN CREACIÓN enviamos payload con el RUT ya formateado
+                await api.post('/api/clients', payload);
                 message.success('Cliente creado exitosamente');
             }
 
+            // 5) Reseteamos el modal y el estado
             setIsModalOpen(false);
             setFormData({
                 rut: '',
@@ -170,6 +195,106 @@ const TabClientes = () => {
             setLoading(false);
         }
     };
+
+
+
+
+
+
+    // //
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //
+    //     // Si tu validateForm devuelve false, cortocircuita aquí
+    //     if (!validateForm()) return;
+    //
+    //     // Clonamos formData a payload para no mutar el estado
+    //     const payload = { ...formData };
+    //
+    //     // Sólo al CREAR (no en edición) validamos y formateamos el RUT
+    //     if (!isEditMode) {
+    //         const rutFormateado = validarFormatearRut(formData.rut);
+    //         if (!rutFormateado) {
+    //             setFormErrors(prev => ({
+    //                 ...prev,
+    //                 rut: 'Ingrese un RUT válido.'
+    //             }));
+    //             message.error('Ingrese un RUT válido.');
+    //             return;
+    //         }
+    //         // Inyectamos el RUT ya formateado en el payload
+    //         payload.rut = rutFormateado;
+    //     }
+    //
+    //     setLoading(true);
+    //     try {
+    //         if (isEditMode && editingClientId) {
+    //             // En EDICIÓN: enviamos payload (idéntico a formData)
+    //             await api.put(`/api/clients/${editingClientId}`, payload);
+    //             message.success('Cliente actualizado exitosamente');
+    //         } else {
+    //             // En CREACIÓN: enviamos payload con RUT formateado
+    //             await api.post('/api/clients', payload);
+    //             message.success('Cliente creado exitosamente');
+    //         }
+    //
+    //         // Reseteo de modal/estado
+    //         setIsModalOpen(false);
+    //         setFormData({
+    //             rut: '',
+    //             razonSocial: '',
+    //             address: '',
+    //             phone: '',
+    //             email: '',
+    //         });
+    //         setIsEditMode(false);
+    //         setEditingClientId(null);
+    //         fetchClients();
+    //     } catch (error) {
+    //         console.error(error);
+    //         const errorMsg = error.response?.data?.message || 'Error al guardar cliente';
+    //         message.error(errorMsg);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
+
+
+
+    // //
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     if (!validateForm()) return;
+    //
+    //     setLoading(true);
+    //     try {
+    //         if (isEditMode && editingClientId) {
+    //             await api.put(`/api/clients/${editingClientId}`, formData);
+    //             message.success('Cliente actualizado exitosamente');
+    //         } else {
+    //             await api.post('/api/clients', formData);
+    //             message.success('Cliente creado exitosamente');
+    //         }
+    //
+    //         setIsModalOpen(false);
+    //         setFormData({
+    //             rut: '',
+    //             razonSocial: '',
+    //             address: '',
+    //             phone: '',
+    //             email: '',
+    //         });
+    //         setIsEditMode(false);
+    //         setEditingClientId(null);
+    //         fetchClients();
+    //     } catch (error) {
+    //         console.error(error);
+    //         const errorMsg = error.response?.data?.message || 'Error al guardar cliente';
+    //         message.error(errorMsg);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     //
     const filteredClients = clientsData.filter(client => {
@@ -233,6 +358,10 @@ const TabClientes = () => {
                                 name="rut"
                                 value={formData.rut}
                                 onChange={handleInputChange}
+                                onBlur={() => {
+                                    const fmt = validarFormatearRut(formData.rut);
+                                    if (fmt) setFormData(prev => ({ ...prev, rut: fmt }));
+                                }}
                                 disabled={isEditMode}
                                 className={`
                                     input input-bordered
