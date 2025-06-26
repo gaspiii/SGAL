@@ -1,5 +1,5 @@
 // src/components/tabs/TabHome.jsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   BarChart2, FileCheck, AlertCircle, DollarSign,
   ClipboardList, Download, CheckCircle, Circle, ChevronRight, Search, Filter, MoreHorizontal
@@ -11,38 +11,8 @@ import {
 import { motion } from 'framer-motion'
 import { DatePicker, Badge } from 'antd'
 import 'antd/dist/reset.css'
-const solicitudes = [
-  {
-    id: 1,
-    solicitante: 'Juan Pérez',
-    cargo: 'Jefe Técnico',
-    correo: 'jperez@geolab.com',
-    fecha: '2025-05-21',
-    estado: 'Pendiente',
-    obra: 'Puente Río Claro',
-    prioridad: 'alta'
-  },
-  {
-    id: 2,
-    solicitante: 'Carla Soto',
-    cargo: 'Ingeniera Civil',
-    correo: 'csoto@geolab.com',
-    fecha: '2025-05-20',
-    estado: 'Aprobada',
-    obra: 'Edificio Central',
-    prioridad: 'media'
-  },
-  {
-    id: 3,
-    solicitante: 'Marcos Ríos',
-    cargo: 'Arquitecto',
-    correo: 'mrios@geolab.com',
-    fecha: '2025-05-18',
-    estado: 'Rechazada',
-    obra: 'Centro Comercial Norte',
-    prioridad: 'baja'
-  },
-]
+import { solicitudService } from '../../api/services.js'
+
 const cotizacionesData = [
   { name: 'Ene', value: 15 },
   { name: 'Feb', value: 22 },
@@ -74,10 +44,27 @@ const objetivos = [
   { id: 6, texto: 'Preparar presentación mensual', nivel: 'imprescindible' },
 ]
 
-
 const TabHome = () => {
   const [startDate, setStartDate] = useState(null)
   const [endDate, setEndDate] = useState(null)
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadSolicitudes();
+  }, []);
+
+  const loadSolicitudes = async () => {
+    setLoading(true);
+    try {
+      const response = await solicitudService.getSolicitudes();
+      setSolicitudes(response.solicitudes || []);
+    } catch (error) {
+      // Manejo de errores opcional
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -235,40 +222,43 @@ const TabHome = () => {
                 </tr>
               </thead>
               <tbody>
-                {solicitudes.map((solicitud) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-4">Cargando solicitudes...</td>
+                  </tr>
+                ) : solicitudes.map((solicitud) => (
                   <motion.tr 
-                    key={solicitud.id}
+                    key={solicitud._id}
                     whileHover={{ backgroundColor: 'rgba(243, 244, 246, 0.5)' }}
                     transition={{ duration: 0.2 }}
                   >
                     <td>
                       <div className="flex items-center space-x-3">
-  <div className="avatar placeholder">
-    <div className="bg-neutral text-neutral-content rounded-full w-8 h-8 flex items-center justify-center">
-      <span className="text-md">
-        {solicitud.solicitante.split(' ').map(n => n[0]).join('')}
-      </span>
-    </div>
-  </div>
-  <div>
-    <div className="font-bold">{solicitud.solicitante}</div>
-    <div className="text-sm text-gray-500">{solicitud.cargo}</div>
-  </div>
-</div>
-
+                        <div className="avatar placeholder">
+                          <div className="bg-neutral text-neutral-content rounded-full w-8 h-8 flex items-center justify-center">
+                            <span className="text-md">
+                              {solicitud.nombreContacto ? solicitud.nombreContacto.split(' ').map(n => n[0]).join('') : '?'}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <div className="font-bold">{solicitud.nombreContacto || 'N/A'}</div>
+                          <div className="text-sm text-gray-500">{solicitud.cargo || ''}</div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="text-sm">{solicitud.correo}</td>
-                    <td className="text-sm">{solicitud.fecha}</td>
+                    <td className="text-sm">{solicitud.email || 'N/A'}</td>
+                    <td className="text-sm">{solicitud.createdAt ? new Date(solicitud.createdAt).toLocaleDateString() : 'N/A'}</td>
                     <td>
                       <Badge 
                         status={
-                          solicitud.estado === 'Aprobada' ? 'success' : 
-                          solicitud.estado === 'Pendiente' ? 'warning' : 'error'
+                          solicitud.status === 'aprobado' ? 'success' : 
+                          solicitud.status === 'pendiente' ? 'warning' : 'error'
                         } 
-                        text={solicitud.estado}
+                        text={solicitud.status || 'N/A'}
                       />
                     </td>
-                    <td className="text-sm">{solicitud.obra}</td>
+                    <td className="text-sm">{solicitud.nombreObra || 'N/A'}</td>
                     <td>
                       <div className="flex gap-1">
                         <button className="btn btn-xs btn-outline">Revisar</button>
